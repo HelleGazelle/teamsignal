@@ -1,6 +1,5 @@
 import ts3
 import time
-import multiprocessing
 import subprocess
 import gspread
 import random
@@ -107,13 +106,5 @@ def watch_teamspeak():
             initiated = True
             time.sleep(5)
 
-# Create and start the watcher process
-watcher_process = multiprocessing.Process(target=watch_teamspeak)
-watcher_process.start()
-
-# Wait for the process to finish (you can use an appropriate condition to exit the loop)
-while watcher_process.is_alive():
-    time.sleep(1)
-
-# Cleanup
-watcher_process.join()
+# Start watching the Teamspeak server
+watch_teamspeak()
