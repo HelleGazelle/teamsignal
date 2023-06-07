@@ -5,10 +5,7 @@ import subprocess
 import gspread
 import random
 import os
-from dotenv import load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
-
-load_dotenv()
 
 # Define the Google Sheet details
 scope = ['https://www.googleapis.com/auth/spreadsheets.readonly']
