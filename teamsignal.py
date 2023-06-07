@@ -50,13 +50,18 @@ def get_user_message_mapping():
 user_mapping = get_user_message_mapping()
 
 def get_message(user: str, event: str):
+    message = f"{user} has entered the Server"
+    if event == 'leave':
+        message = f"{user} has left the Server"
+
     if user in user_mapping:
         events_for_user = user_mapping[user]
         message_string = events_for_user[event]
         messages = message_string.split(',')
         random_item = random.choice(messages)
-        return random_item
-    return f"{user} has entered the Server"
+        message = random_item
+    
+    return message
 
 def send_singal_message(message: str):
     # Modify this function to execute the desired command with the user data
