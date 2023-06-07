@@ -1,0 +1,5 @@
+ts3
+gspread
+oauth2client
+google-api-python-client
+dotenv
