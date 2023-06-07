@@ -60,7 +60,7 @@ def get_message(user: str, event: str):
 
 def send_singal_message(message: str):
     # Modify this function to execute the desired command with the user data
-    command = f'signal-cli -a {telephone_number} send -m "{message}" {recipient_number}'
+    command = f'signal-cli -u {telephone_number} send -g {recipient_number} -m "{message}"'
     subprocess.call(command, shell=True)
 
 def watch_teamspeak():
