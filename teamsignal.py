@@ -1,5 +1,6 @@
 import ts3
 import time
+import datetime
 import subprocess
 import gspread
 import random
@@ -7,10 +8,11 @@ import os
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Define the Google Sheet details
-scope = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('sa_key.json', scope)
 spreadsheet_key = os.getenv('SPREADSHEET_KEY')
-worksheet_name = 'users'
+worksheet_name_users = 'users'
+worksheet_name_events = 'events'
 
 # teamspeak
 teamspeak_ip = os.getenv('TEAMSPEAK_IP')
@@ -25,7 +27,7 @@ def get_user_message_mapping():
 
     # Open the Google Sheet
     sheet = client.open_by_key(spreadsheet_key)
-    worksheet = sheet.worksheet(worksheet_name)
+    worksheet = sheet.worksheet(worksheet_name_users)
 
     # Get the values from the worksheet
     values = worksheet.get_all_values()
@@ -49,6 +51,31 @@ def get_user_message_mapping():
 # get user mapping
 user_mapping = get_user_message_mapping()
 
+def append_user_event_sheet_row(user: str, event: str):
+    # Authenticate with Google Sheets API
+    client = gspread.authorize(credentials)
+
+    # Open the Google Sheet
+    sheet = client.open_by_key(spreadsheet_key)
+    worksheet = sheet.worksheet(worksheet_name_events)
+
+    # get german date time now
+    current_time = datetime.datetime.now()
+    # Define the time difference for Germany (UTC+2)
+    germany_time_difference = datetime.timedelta(hours=2)
+    # Calculate the current time in Germany
+    germany_current_time = current_time + germany_time_difference
+    # Format the current time as a string
+    time_string = germany_current_time.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Prepare the data for the new row as a list
+    new_row_data = [user, event, time_string]
+
+    # Append the new row to the Google Sheet
+    worksheet.append_row(new_row_data)
+
+    print('Row appended successfully.')
+
 def get_message(user: str, event: str):
     message = f"{user} has entered the Server"
     if event == 'leave':
@@ -70,6 +97,7 @@ def send_singal_message(message: str):
 
 def watch_teamspeak():
     with ts3.query.TS3Connection(teamspeak_ip, 11200) as ts3conn:
+        print("watching...")
         # Keep track of the user list
         current_user_list = []
         initiated = False
@@ -93,7 +121,10 @@ def watch_teamspeak():
                 for user in entered_users:
                     message = get_message(user, 'enter')
                     print(message)
+                    # send message
                     send_singal_message(message)
+                    # append gsheet event
+                    append_user_event_sheet_row(user, 'enter')
 
             # Find users who left the channel
             left_users = list(set(current_user_list) - set(updated_user_list))
@@ -103,6 +134,8 @@ def watch_teamspeak():
                     message = get_message(user, 'leave')
                     print(message)
                     send_singal_message(message)
+                    # append gsheet event
+                    append_user_event_sheet_row(user, 'leave')
 
             # Update the current user list
             current_user_list = updated_user_list
