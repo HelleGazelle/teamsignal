@@ -10,14 +10,14 @@ Every time when a client joins your Teamspeak channel, a Signal message is sent 
 
 ### Setup
 
-#### 1 signal-cli: 
+#### 1 signal-cli:
 
 The Signal messages are sent via signal-ci: https://github.com/AsamK/signal-cli
 You can run the cli via docker container or install it natively on the system
 
 You have to register your account and verfiy your phone number to be capable to send messages via cli.
 
-####  Signal group
+#### Signal group
 
 Setup a Signal group and get the group id. The id is the receiver for the signal-cli command that sends the message. You can get the group id by enabling the join by link feature in Signal for the corresponding group.
 
@@ -27,4 +27,14 @@ You need permissions to use the Teamspeak server queries. Find a short instructi
 
 #### 4 Teamsginal Python service
 
-You can setup the Python daemon with systemctl or run it inside a Docker container. The service will need permission to access the signal-cli binary. Don't forget to open the telnet ports for the ts3 library that is based on the telnet protocol. 
+You can setup the Python daemon with systemctl or run it inside a Docker container. The service will need permission to access the signal-cli binary. Don't forget to open the telnet ports for the ts3 library that is based on the telnet protocol.
+
+## Signal Cli
+
+List identities for a number
+
+signal-cli listIdentities -n <receiver-number>
+
+Now you have to trust with the Safety Number
+
+signal-cli trust <receiver-number> -v <safety-number>
